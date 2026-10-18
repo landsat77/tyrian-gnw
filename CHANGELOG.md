@@ -1,0 +1,24 @@
+# Changelog
+
+This file follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Release tags must
+match a section heading exactly (for example `v1.0.0`): CI uses the matching
+section as the GitHub Release notes.
+
+## [Unreleased]
+
+## [v1.0.0] - 2026-10-18
+
+### Added
+
+- Tyrian 2.1 (the freeware PC version) as a Retro-Go SD GWHB homebrew, built
+  on OpenTyrian and the retro-go-sd-templates SDK (firmware ABI v2,
+  Retro-Go SD v2.0.0-rc1 or later), on a small SDL 2 written for the console.
+- Game data from a `.ty` pack next to the `.bin`, used in place from the
+  external flash (`tools/ty_pack.py`), with the AdLib music pre-rendered on
+  the PC with its exact loops (`ty_render` for Windows, macOS and Linux).
+- Savestates like the game's saved games (back to the game menu before the
+  level), resume from the launcher.
+- Pause menu options: music, sound effects, swap A/B.
+- Full screen picture (320x200 stretched to 320x240) or the original size
+  (Setup → Graphics → Picture).
