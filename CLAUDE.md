@@ -25,6 +25,10 @@ is the SDK's generic porting guide (memory map, audio, ABI).
   sidekicks, TIME=Enter rear mode, GAME=Esc; in the menus A=Enter, B=Esc,
   directions repeat (350 / 110 ms). No mouse (has_mouse false), no joystick,
   windowHasFocus = true (else NDEBUG pauses the game).
+  Keycodes: letters / Enter / Esc / Space only, 0 for the other keys (the
+  title screen does toupper(sym): SDL's 0x40000000|scancode indexed
+  newlib's ctype table out of range -> Hardfault on the console, v1.0.1;
+  gwemu did not fault).
 - Display: LCD in LUT8 mode. SDL_MapRGB returns 0x00RRGGBB (rgb_palette of
   palette.c) -> lcd_set_clut() when the palette changes (FNV hash as
   version; forced after the pause menu). 320x200 copied line by line,
