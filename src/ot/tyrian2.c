@@ -2358,12 +2358,25 @@ void JE_loadMap(void)
 	JE_byte *ref[3][128]; /* [1..3, 0..127] */
 	char s[256];
 
+#ifdef GNW
+	/* 75 KB of locals here, the console's stack is 24 KB (it ran over the
+	 * weapon table, Hardfault when a demo loaded the items) */
+	static JE_byte mapBuf[15 * 600]; /* [1..15 * 600] */
+#else
 	JE_byte mapBuf[15 * 600]; /* [1..15 * 600] */
+#endif
 	JE_word bufLoc;
 
 	char buffer[256];
 	int i;
+#ifdef GNW
+	/* game_screen (320x200, pitch 320) is free between the levels */
+	Uint8 *const pic_buffer = game_screen->pixels;
+#define PIC_BUFFER_SIZE (320 * 200)
+#else
 	Uint8 pic_buffer[320*200]; /* screen buffer, 8-bit specific */
+#define PIC_BUFFER_SIZE sizeof(pic_buffer)
+#endif
 	Uint8 *vga, *pic, *vga2; /* screen pointer, 8-bit specific */
 
 	lastCubeMax = cubeMax;
@@ -2746,7 +2759,7 @@ new_game:
 
 							JE_word tempX = atoi(s + 3);
 							JE_loadPic(VGAScreen, tempX, false);
-							memcpy(pic_buffer, VGAScreen->pixels, sizeof(pic_buffer));
+							memcpy(pic_buffer, VGAScreen->pixels, PIC_BUFFER_SIZE);
 
 							for (int z = 0; z <= 199; z++)
 							{
@@ -2780,7 +2793,7 @@ new_game:
 									break;
 							}
 
-							memcpy(VGAScreen->pixels, pic_buffer, sizeof(pic_buffer));
+							memcpy(VGAScreen->pixels, pic_buffer, PIC_BUFFER_SIZE);
 						}
 						break;
 
@@ -2791,7 +2804,7 @@ new_game:
 
 							JE_word tempX = atoi(s + 3);
 							JE_loadPic(VGAScreen, tempX, false);
-							memcpy(pic_buffer, VGAScreen->pixels, sizeof(pic_buffer));
+							memcpy(pic_buffer, VGAScreen->pixels, PIC_BUFFER_SIZE);
 
 							for (int z = 0; z <= 199; z++)
 							{
@@ -2825,7 +2838,7 @@ new_game:
 									break;
 							}
 
-							memcpy(VGAScreen->pixels, pic_buffer, sizeof(pic_buffer));
+							memcpy(VGAScreen->pixels, pic_buffer, PIC_BUFFER_SIZE);
 						}
 						break;
 
@@ -2836,7 +2849,7 @@ new_game:
 
 							JE_word tempX = atoi(s + 3);
 							JE_loadPic(VGAScreen, tempX, false);
-							memcpy(pic_buffer, VGAScreen->pixels, sizeof(pic_buffer));
+							memcpy(pic_buffer, VGAScreen->pixels, PIC_BUFFER_SIZE);
 
 							for (int z = 0; z <= 318; z++)
 							{
@@ -2865,7 +2878,7 @@ new_game:
 									break;
 							}
 
-							memcpy(VGAScreen->pixels, pic_buffer, sizeof(pic_buffer));
+							memcpy(VGAScreen->pixels, pic_buffer, PIC_BUFFER_SIZE);
 						}
 						break;
 

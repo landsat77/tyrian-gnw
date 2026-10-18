@@ -159,6 +159,33 @@ void *ty_plat_big_memory(const char *what, size_t size)
     return p;
 }
 
+/* The stack: 24 KB at the top of DTCM (firmware linker script). Painted at
+ * start, the statistics give its low-water mark. */
+#define TY_STACK_LOW  0x2001a020u
+#define TY_STACK_TOP  0x20020000u
+#define TY_STACK_MARK 0x5ab1e5edu
+static bool stack_painted;
+
+static void stack_paint(void)
+{
+    uint32_t sp = (uint32_t)__builtin_frame_address(0);
+    if (sp <= TY_STACK_LOW + 1024 || sp > TY_STACK_TOP)
+        return;
+    for (volatile uint32_t *w = (uint32_t *)(TY_STACK_LOW + 32); (uint32_t)w < sp - 256; w++)
+        *w = TY_STACK_MARK;
+    stack_painted = true;
+}
+
+static unsigned stack_free(void)
+{
+    if (!stack_painted)
+        return 0;
+    const uint32_t *w = (const uint32_t *)(TY_STACK_LOW + 32);
+    while ((uint32_t)w < TY_STACK_TOP && *w == TY_STACK_MARK)
+        w++;
+    return (unsigned)((uint32_t)w - TY_STACK_LOW);
+}
+
 static void show_error(const char *msg, const char *detail);
 
 void ty_plat_fatal(const char *msg)
@@ -229,11 +256,11 @@ void ty_plat_present(const uint8_t *pixels, int pitch,
         uint32_t ms = last_present_ms - stat_t0;
         /* 280 MHz */
         uint32_t idle_ms = (uint32_t)(stat_idle_cycles / 280000u);
-        char line[160];
-        snprintf(line, sizeof(line), "ty: %lu.%lu fps, longest frame %lu ms, idle %lu%%, heap %u / peak %u, audio underrun %lu samples\n",
+        char line[200];
+        snprintf(line, sizeof(line), "ty: %lu.%lu fps, longest frame %lu ms, idle %lu%%, heap %u / peak %u, stack free %u, audio underrun %lu samples\n",
                (unsigned long)(stat_frames * 1000 / ms), (unsigned long)((stat_frames * 10000 / ms) % 10),
                (unsigned long)stat_max_frame_ms,
-               (unsigned long)(idle_ms * 100 / ms), (unsigned)ty_heap_used(), (unsigned)ty_heap_peak(),
+               (unsigned long)(idle_ms * 100 / ms), (unsigned)ty_heap_used(), (unsigned)ty_heap_peak(), stack_free(),
                (unsigned long)stat_audio_missed);
         printf("%s", line);
         /* the first minute in a file of the save folder (diagnostics) */
@@ -539,6 +566,7 @@ void app_main(uint8_t load_state, uint8_t start_paused, int8_t save_slot)
     *(volatile uint32_t *)0xE000EDFC |= 1u << 24; /* DEMCR.TRCENA */
     *(volatile uint32_t *)0xE0001000 |= 1u;       /* DWT_CTRL.CYCCNTENA */
     printf("Tyrian start\n");
+    stack_paint();
 
     odroid_system_init(APPID_HOMEBREW, TY_SAMPLE_RATE);
     odroid_system_emu_init(&ty_load_state, &ty_save_state, &screenshot, NULL, NULL, NULL, NULL);

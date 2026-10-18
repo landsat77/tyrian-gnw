@@ -29,6 +29,13 @@ is the SDK's generic porting guide (memory map, audio, ABI).
   title screen does toupper(sym): SDL's 0x40000000|scancode indexed
   newlib's ctype table out of range -> Hardfault on the console, v1.0.1;
   gwemu did not fault).
+- Stack: 24 KB (0x2001a020..0x20020000, top of DTCM) and `weapons` sits
+  just below in the DTCM pool: an overflow is silent until something is
+  read into the table. JE_loadMap had 75 KB of locals (pic_buffer 64000 ->
+  game_screen->pixels, mapBuf static under GNW): demos (beginPlayDemo ->
+  JE_initEpisode reads the items over the live stack) Hardfaulted, v1.0.2.
+  ty_main.c paints the stack at start, the 5 s statistics print "stack
+  free" (19 KB in a demo). Check new big frames with objdump (sub sp).
 - Display: LCD in LUT8 mode. SDL_MapRGB returns 0x00RRGGBB (rgb_palette of
   palette.c) -> lcd_set_clut() when the palette changes (FNV hash as
   version; forced after the pause menu). 320x200 copied line by line,

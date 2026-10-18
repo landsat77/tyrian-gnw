@@ -7,6 +7,17 @@ section as the GitHub Release notes.
 
 ## [Unreleased]
 
+## [v1.0.2] - 2026-10-18
+
+### Fixed
+
+- Crash (Hardfault) when a demo starts, from the title menu (Demo) or after
+  waiting on the title screen: the level loader had 75 KB of local
+  variables, more than the console's 24 KB stack, and ran over the weapon
+  table. Its picture buffer is now the game's third screen (free between
+  the levels) and its map buffer is static.
+- The statistics of the console log give the free stack.
+
 ## [v1.0.1] - 2026-10-18
 
 ### Fixed
