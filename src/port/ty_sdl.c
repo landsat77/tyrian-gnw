@@ -243,7 +243,10 @@ static SDL_Keycode keycode_of(SDL_Scancode sc)
 	case SDL_SCANCODE_RETURN: return '\r';
 	case SDL_SCANCODE_ESCAPE: return 27;
 	case SDL_SCANCODE_SPACE:  return ' ';
-	default:                  return 0x40000000 | sc;
+	/* SDL 2 gives 0x40000000 | scancode; the game passes the keycode to
+	 * toupper() (title screen), which indexes the C library's table with
+	 * it on the console: 0, no character */
+	default:                  return 0;
 	}
 }
 

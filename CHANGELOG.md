@@ -7,6 +7,15 @@ section as the GitHub Release notes.
 
 ## [Unreleased]
 
+## [v1.0.1] - 2026-10-18
+
+### Fixed
+
+- Crash (Hardfault) on the console when moving in the title menu: the keys
+  without a character no longer give the game SDL's large key codes, which
+  the title screen passes to `toupper()` (out of the C library's table on
+  the console).
+
 ## [v1.0.0] - 2026-10-18
 
 ### Added
